@@ -1,0 +1,64 @@
+{
+  "rewrites": [
+    { "source": "/streamsync/(.*)", "destination": "/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "env": {
+    "VITE_API_URL": "https://your-render-app.onrender.com"
+  }
+}
+```
+
+### `frontend/.env.production` — new file
+```
+VITE_API_URL=https://your-render-app.onrender.com
+```
+
+### `frontend/.env.development` — new file
+```
+VITE_API_URL=http://localhost:8000
+```
+
+---
+
+## 5. Exact Deployment Steps — in order
+```
+Step 1 — Supabase
+  → supabase.com → New project → Settings → Database → copy connection string
+  → Replace "postgres://" with "postgresql://" in the URL
+
+Step 2 — Upstash Redis
+  → upstash.com → Create database → Copy "REDIS_URL" (starts with rediss://)
+
+Step 3 — AWS S3
+  → Create bucket "streamsync-videos" → region ap-south-1
+  → Permissions → Block public access → OFF
+  → Add bucket policy (public read):
+    {
+      "Version": "2012-10-17",
+      "Statement": [{
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::streamsync-videos/*"
+      }]
+    }
+  → Upload your 4-5 MP4 files manually
+  → Copy each URL: https://streamsync-videos.s3.ap-south-1.amazonaws.com/video1.mp4
+  
+
+Step 4 — Render
+  → render.com → New Web Service → connect GitHub repo
+  → Root directory: backend
+  → Add env vars: DATABASE_URL, REDIS_URL, S3_BASE_URL
+  → Deploy → copy your .onrender.com URL
+
+Step 5 — Vercel
+  → vercel.com → Import GitHub repo
+  → Root directory: frontend
+  → Add env var: VITE_API_URL = your Render URL
+  → Deploy
+
+Step 6 — Point kapilraghav.info/streamsync
+  → In your portfolio repo, add a redirect or iframe
+  → Or in Vercel, add kapilraghav.info as custom domain
