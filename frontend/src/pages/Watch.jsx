@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import axios from "axios"
-
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000"
+import API from "../constants/api"
 
 const LANES = 7
 const DANMU_COLORS = ["#fff", "#ffcc44", "#88ddff", "#ffaaaa", "#aaffcc", "#ffddaa", "#ccaaff"]

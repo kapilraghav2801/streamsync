@@ -15,19 +15,15 @@ export default function App() {
     setPage("watch")
   }
 
-  if (page === "shorts") return (
-    <Shorts
-      onUpload={() => setPage("upload")}
-      onGoRelax={() => setPage("relax")}
-    />
-  )
-  if (page === "relax") return (
-    <Relax
-      onSelect={v => goWatch(v, "relax")}
-      onGoShorts={() => setPage("shorts")}
-      onUpload={() => setPage("upload")}
-    />
-  )
+  const nav = {
+    page,
+    onShorts: () => setPage("shorts"),
+    onRelax: () => setPage("relax"),
+    onUpload: () => setPage("upload")
+  }
+
+  if (page === "shorts") return <Shorts nav={nav} onSelect={v => goWatch(v, "shorts")} />
+  if (page === "relax") return <Relax nav={nav} onSelect={v => goWatch(v, "relax")} />
   if (page === "watch") return <Watch video={selectedVideo} onBack={() => setPage(fromPage)} />
-  if (page === "upload") return <Upload onDone={() => setPage("shorts")} />
+  if (page === "upload") return <Upload nav={nav} onDone={() => setPage("shorts")} />
 }
