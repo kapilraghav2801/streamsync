@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000"
+const API = import.meta.env.VITE_API_URL = https://streamsync-apis.onrender.com
+
 
 
 const facts = [
@@ -20,7 +21,7 @@ export default function WakeUp({ children }) {
     let factTimer
     const check = async () => {
       try {
-        await axios.get(`${API}/videos/feed`, { timeout: 3000 })
+        await axios.get(`${API}/videos/feed`, { timeout: 5000 })
         setStatus("ready")
       } catch {
         setStatus("waking")
