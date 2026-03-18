@@ -1,24 +1,36 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from collections import defaultdict
-from typing import List
 import redis.asyncio as aioredis
 import json, time, os
 
 router = APIRouter()
-redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
-r = aioredis.Redis(
-    host=redis_url.split("@")[1].split(":")[0],
-    port=int(redis_url.split("@")[1].split(":")[1]),
-    password=redis_url.split(":")[2].split("@")[0],
-    ssl=redis_url.startswith("rediss"),
-    decode_responses=True
-)
 
+# lazy init — don't connect at import time
+_redis = None
+
+def get_redis():
+    global _redis
+    if _redis is None:
+        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+        if redis_url.startswith("rediss://"):
+            # parse manually for Python 3.14 compatibility
+            parts = redis_url.replace("rediss://", "")
+            password = parts.split("@")[0].split(":")[1]
+            host = parts.split("@")[1].split(":")[0]
+            port = int(parts.split("@")[1].split(":")[1])
+            _redis = aioredis.Redis(
+                host=host, port=port, password=password,
+                ssl=True, decode_responses=True
+            )
+        else:
+            _redis = aioredis.from_url(redis_url, decode_responses=True)
+    return _redis
 
 connections: dict = defaultdict(list)
 
 @router.post("/comments/{video_id}")
 async def post_comment(video_id: int, payload: dict):
+    r = get_redis()
     comment_id = f"{video_id}:{int(time.time()*1000)}"
     comment = {"id": comment_id, "text": payload["text"], "upvotes": 0}
     await r.hset(f"comment:{comment_id}", mapping=comment)
@@ -27,6 +39,7 @@ async def post_comment(video_id: int, payload: dict):
 
 @router.post("/comments/{video_id}/upvote/{comment_id}")
 async def upvote_comment(video_id: int, comment_id: str):
+    r = get_redis()
     key = f"comment:{comment_id}"
     await r.hincrby(key, "upvotes", 1)
     upvotes = int(await r.hget(key, "upvotes"))
@@ -35,6 +48,7 @@ async def upvote_comment(video_id: int, comment_id: str):
 
 @router.get("/comments/{video_id}")
 async def get_comments(video_id: int):
+    r = get_redis()
     ids = await r.zrevrange(f"comments:{video_id}", 0, -1)
     comments = []
     for cid in ids:
@@ -49,6 +63,7 @@ async def get_comments(video_id: int):
 
 @router.get("/comments/{video_id}/top")
 async def get_top_comments(video_id: int):
+    r = get_redis()
     ids = await r.zrevrange(f"comments:{video_id}", 0, 2)
     comments = []
     for cid in ids:
@@ -63,6 +78,7 @@ async def get_top_comments(video_id: int):
 
 @router.websocket("/ws/{video_id}")
 async def danmaku_ws(video_id: int, websocket: WebSocket):
+    r = get_redis()
     await websocket.accept()
     connections[video_id].append(websocket)
     try:
