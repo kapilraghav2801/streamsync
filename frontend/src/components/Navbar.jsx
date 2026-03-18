@@ -18,7 +18,7 @@ export default function Navbar({ page, onShorts, onRelax, onUpload }) {
         STREAMSYNC
       </span>
       <div style={{ display: "flex", gap: 8 }}>
-        <NavBtn label="Shorts" active={page === "shorts"} onClick={onShorts} />
+        <NavBtn label="Scroll" active={page === "shorts"} onClick={onShorts} />
         <NavBtn label="Relax" active={page === "relax"} onClick={onRelax} />
         <NavBtn label="Upload" active={page === "upload"} onClick={onUpload} />
       </div>
