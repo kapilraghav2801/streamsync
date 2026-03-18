@@ -5,10 +5,15 @@ import redis.asyncio as aioredis
 import json, time, os
 
 router = APIRouter()
-r = aioredis.from_url(
-    os.getenv("REDIS_URL", "redis://localhost:6379"),
+redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+r = aioredis.Redis(
+    host=redis_url.split("@")[1].split(":")[0],
+    port=int(redis_url.split("@")[1].split(":")[1]),
+    password=redis_url.split(":")[2].split("@")[0],
+    ssl=redis_url.startswith("rediss"),
     decode_responses=True
 )
+
 
 connections: dict = defaultdict(list)
 
