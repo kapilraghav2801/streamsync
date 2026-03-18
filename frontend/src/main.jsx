@@ -11,15 +11,3 @@ createRoot(document.getElementById('root')).render(
     </WakeUp>
   </StrictMode>
 )
-```
-
----
-
-## 3. Backend Code Changes for Deployment
-
-### `backend/.env` — new file (never commit this)
-```
-DATABASE_URL=postgresql://your-supabase-url
-REDIS_URL=rediss://your-upstash-url
-AWS_BUCKET_NAME=streamsync-videos
-AWS_REGION=ap-south-1
