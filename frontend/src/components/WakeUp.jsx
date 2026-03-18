@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 
-const API = import.meta.env.VITE_API_URL = https://streamsync-apis.onrender.com
-
-
+const API = import.meta.env.VITE_API_URL || "http://localhost:8000"
 
 const facts = [
   "In 2024, China's micro-drama market hit $6.9B — beating the entire Chinese box office.",
@@ -14,7 +12,7 @@ const facts = [
 ]
 
 export default function WakeUp({ children }) {
-  const [status, setStatus] = useState("checking") // checking | waking | ready
+  const [status, setStatus] = useState("checking")
   const [factIndex, setFactIndex] = useState(0)
 
   useEffect(() => {
@@ -25,11 +23,9 @@ export default function WakeUp({ children }) {
         setStatus("ready")
       } catch {
         setStatus("waking")
-        // rotate facts every 3s while waiting
         factTimer = setInterval(() => {
           setFactIndex(p => (p + 1) % facts.length)
         }, 3000)
-        // retry every 4s
         const retry = setInterval(async () => {
           try {
             await axios.get(`${API}/videos/feed`, { timeout: 4000 })
@@ -53,7 +49,6 @@ export default function WakeUp({ children }) {
       alignItems: "center", justifyContent: "center",
       fontFamily: "'DM Sans', sans-serif", padding: 32
     }}>
-      {/* Logo */}
       <div style={{
         fontFamily: "'Space Mono', monospace",
         fontSize: 18, fontWeight: 700, letterSpacing: 3,
@@ -62,7 +57,6 @@ export default function WakeUp({ children }) {
         STREAMSYNC
       </div>
 
-      {/* Spinner */}
       <div style={{
         width: 36, height: 36,
         border: "2px solid #1a1a1a",
@@ -72,7 +66,6 @@ export default function WakeUp({ children }) {
         marginBottom: 28
       }} />
 
-      {/* Status */}
       {status === "checking" && (
         <p style={{ color: "#444", fontSize: 13, fontFamily: "'Space Mono', monospace", letterSpacing: 1 }}>
           connecting...
@@ -87,8 +80,6 @@ export default function WakeUp({ children }) {
           <p style={{ color: "#333", fontSize: 11, marginBottom: 40, fontFamily: "'Space Mono', monospace" }}>
             (Render.com free tier sleeps after 15min inactivity)
           </p>
-
-          {/* Rotating micro-drama fact */}
           <div style={{
             maxWidth: 480, padding: "20px 28px",
             border: "1px solid #1a1a1a", borderRadius: 12,
@@ -102,10 +93,7 @@ export default function WakeUp({ children }) {
             }}>
               did you know · micro-dramas
             </div>
-            <p style={{
-              fontSize: 14, color: "#888", lineHeight: 1.7,
-              fontStyle: "italic"
-            }}>
+            <p style={{ fontSize: 14, color: "#888", lineHeight: 1.7, fontStyle: "italic" }}>
               "{facts[factIndex]}"
             </p>
           </div>
