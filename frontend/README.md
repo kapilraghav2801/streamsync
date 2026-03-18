@@ -2,7 +2,7 @@
 
 React + Vite frontend for the StreamSync video platform.
 
-**Live:** [streamsync.kapilraghav.info](https://kapilraghav.info/streamsync)
+**Live:** [https://kapilraghav.info/streamsync](https://kapilraghav.info/streamsync)
 
 ---
 

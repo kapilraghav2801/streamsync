@@ -2,7 +2,7 @@
 
 A short-video platform exploring engagement mechanics that YouTube Shorts and Instagram Reels haven't adopted.
 
-🔗 **Live Demo:** [streamsync.kapilraghav.info](https://kapilraghav.info/streamsync)  
+🔗 **Live Demo:** [https://kapilraghav.info/streamsync](https://kapilraghav.info/streamsync)  
 
 ---
 
