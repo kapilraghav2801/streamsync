@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from fastapi.responses import RedirectResponse, FileResponse
 from sqlalchemy.orm import Session
-from sqlalchemy import update
+from sqlalchemy import update, desc, case
 from database import get_db
 from models import Video
 
@@ -55,12 +55,19 @@ def stream_video(video_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/feed")
-def get_feed(db: Session = Depends(get_db)):
-    videos = db.query(Video).all()
-    def score(v):
-        boost = 1.5 if v.creator_tier == "new" else 1.0
-        return (v.like_count * 2 + v.view_count) * boost
-    sorted_videos = sorted(videos, key=score, reverse=True)
+def get_feed(page: int = 0, db: Session = Depends(get_db)):
+    # build the score expression inside PostgreSQL, not Python
+    boost = case((Video.creator_tier == "new", 1.5), else_=1.0)
+    score_expr = (Video.like_count * 2 + Video.view_count) * boost
+
+    videos = (
+        db.query(Video)
+        .order_by(desc(score_expr))   # DB sorts
+        .limit(10)                    # DB takes only 10
+        .offset(page * 10)            # DB skips previous pages
+        .all()
+    )
+
     return [
         {
             "id": v.id, "title": v.title,
@@ -70,8 +77,9 @@ def get_feed(db: Session = Depends(get_db)):
             "like_count": v.like_count,
             "creator_tier": v.creator_tier,
         }
-        for v in sorted_videos
+        for v in videos
     ]
+
 
 
 @router.post("/{video_id}/like")

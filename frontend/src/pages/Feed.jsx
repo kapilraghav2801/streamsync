@@ -9,7 +9,7 @@ export default function Feed({ onSelect }) {
   const [videos, setVideos] = useState([])
 
   useEffect(() => {
-    axios.get(`${API}/videos/feed`).then(r => setVideos(r.data))
+    axios.get(`${API}/videos/feed?page=0`).then(r => setVideos(r.data))
   }, [])
 
   return (
