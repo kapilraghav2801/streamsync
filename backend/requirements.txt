@@ -7,3 +7,5 @@ redis
 websockets
 psycopg2-binary
 python-dotenv
+pytest
+httpx
